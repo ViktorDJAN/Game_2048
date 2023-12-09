@@ -1,2 +1,2 @@
-# Game 2048
+# basics.Game 2048
 
