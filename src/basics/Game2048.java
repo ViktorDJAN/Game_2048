@@ -4,6 +4,8 @@ import basics.Direction;
 import basics.Game;
 import basics.GameHelper;
 import boards.Board;
+import boards.SquareBoard;
+import key.Key;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -13,9 +15,15 @@ public class Game2048 implements Game {
     Board board;
     Random random = new Random();
 
-    public Game2048(Board board) {
-        this.board = board;
-    }
+    public static final  int GAME_SIZE = 4;
+    private final Board<Key,Integer>  filledBoard= new SquareBoard<>(GAME_SIZE);
+
+    // might be better if it is empty
+        public Game2048() {
+        }
+//    public Game2048(Board board) {
+//        this.board = board;
+//    }
 
     ArrayList<Integer> attemptList = new ArrayList<>();
 
