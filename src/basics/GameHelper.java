@@ -1,33 +1,39 @@
 package basics;
-
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
-public class GameHelper{
-    public List<Integer>moveAndMergeEqual(List<Integer> list){
-        ArrayList<Integer>tempo = new ArrayList<>();
-        ArrayList<Integer>result = new ArrayList<>();
+public class GameHelper {
+    public List<Integer> moveAndMergeEqual(List<Integer> list) {
+        var resListSize = list.size();
+        List<Integer> resList = new ArrayList<Integer>(resListSize);
 
-        for(int i = 0;i<list.size();i++){
-            if(list.get(i)!=null){
-                tempo.add(list.get(i));
+        if(list.isEmpty()){
+            return resList;
+        }
+
+        List<Integer> listExtNull = new ArrayList<>();
+        for (Integer i : list) {
+            if (i != null){
+                listExtNull.add(i);
+            }
+        }
+        var listExtNullSize = listExtNull.size();
+
+        for (int i = 0; i < resListSize; i++) {
+            if(i < listExtNullSize){
+                var curVal = listExtNull.get(i);
+                if (i < listExtNullSize - 1 && curVal == listExtNull.get(i+1)){
+                    resList.add(curVal * 2);
+                    i++;
+                    resListSize ++;///
+                } else {
+                    resList.add(curVal);
+                }
+            } else {
+                resList.add(null);
             }
         }
 
-        for(int i = 0; i<tempo.size()-1;i++){
-            if(tempo.get(i)==tempo.get(i+1)){
-                tempo.set(i,(tempo.get(i+1)+tempo.get(i)));
-                tempo.remove(i+1);
-            }
-        }
-
-        result.addAll(tempo);
-
-        while(result.size()!=list.size()){
-            result.add(null);
-        }
-
-        return result;
+        return resList;
     }
 }

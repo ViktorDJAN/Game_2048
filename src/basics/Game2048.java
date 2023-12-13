@@ -1,35 +1,36 @@
 package basics;
 
-import basics.Direction;
-import basics.Game;
-import basics.GameHelper;
 import boards.Board;
 import boards.SquareBoard;
+import exceptions.NotEnoughSpace;
 import key.Key;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.reverse;
 
 public class Game2048 implements Game {
     GameHelper helper = new GameHelper();
-    Board board;
     Random random = new Random();
+    public static final int GAME_SIZE = 4;
+    private final Board<Key, Integer> board = new SquareBoard<>(GAME_SIZE);
 
-    public static final  int GAME_SIZE = 4;
-    private final Board<Key,Integer>  filledBoard= new SquareBoard<>(GAME_SIZE);
 
-    // might be better if it is empty
-        public Game2048() {
-        }
-//    public Game2048(Board board) {
-//        this.board = board;
-//    }
 
-    ArrayList<Integer> attemptList = new ArrayList<>();
+
+    public Game2048() {
+    }
 
     @Override
     public void init() {
-        board.fillBoard(attemptList);
+        new Game2048();
+        board.fillBoard((Collections.nCopies(GAME_SIZE * GAME_SIZE, null)));
+        addItem();
+
     }
 
     @Override
@@ -41,53 +42,82 @@ public class Game2048 implements Game {
     }
 
     @Override
-    public void move(Direction direction) {
+    public boolean move(Direction direction) {
+        var unchangeableBoard = new ArrayList<Integer>();
+        var resultBoard = new ArrayList<Integer>();
+        List<Key> keysList;
+        List<Integer> exchangingRow;
         switch (direction) {
-            case UP:
-                for (int i = 0; i < board.getHeight(); i++) {
-                    helper.moveAndMergeEqual(board.getColumnValues(i));
-                }
-                break;
-            case DOWN:
-                for (int i = board.getHeight(); i > 0; i--) {
-                    helper.moveAndMergeEqual(board.getColumnValues(i));
-                }
-                break;
             case LEFT:
                 for (int i = 0; i < board.getWidth(); i++) {
-                    helper.moveAndMergeEqual(board.getRowValues(i));
+                    resultBoard.addAll(helper.moveAndMergeEqual(board.getValues(board.getRow(i))));
                 }
+                board.fillBoard(resultBoard);
                 break;
             case RIGHT:
-                for (int i = board.getWidth(); i > 0; i--) {
-                    helper.moveAndMergeEqual(board.getRowValues(i));
+                for (int i = 0; i < board.getWidth(); i++) {
+                    reverse(keysList = board.getRow(i));
+                    exchangingRow = helper.moveAndMergeEqual(board.getValues(keysList));
+                    reverse(exchangingRow);
+                    resultBoard.addAll(exchangingRow);
                 }
+                board.fillBoard(resultBoard);
+                break;
+            case UP:
+                for (int i = 0; i < board.getHeight(); i++) {
+                    unchangeableBoard.addAll(helper.moveAndMergeEqual(board.getValues(board.getColumn(i))));
+                }
+                resultBoard = (ArrayList<Integer>) rotate90(unchangeableBoard);
+                board.fillBoard(resultBoard);
+                break;
+            case DOWN:
+                for (int i = 0; i < board.getHeight(); i++) {
+                    reverse(keysList = board.getColumn(i));
+                    exchangingRow = helper.moveAndMergeEqual(board.getValues(keysList));
+                    reverse(exchangingRow);
+                    unchangeableBoard.addAll(exchangingRow);
+                }
+                resultBoard = (ArrayList<Integer>) rotate90(unchangeableBoard);
+
+                board.fillBoard(resultBoard);
                 break;
         }
+        addItem();
+        return true;
     }
 
-
-
-    @Override
     public void addItem() {
-        Random random1 = new Random();
-         var unfilledCells  = board.availableSpace();
-         for(var certainKey: unfilledCells){
-             board.addItem(certainKey, random1.nextInt(16));
-         }
-
-    }
+        Random random = new Random();
+            if(!board.availableSpace().isEmpty()){
+                int num = random.nextInt(10);
+                Key addictedKey = board.availableSpace().get(random.nextInt(board.availableSpace().size()));
+                if(num ==10){
+                    board.addItem(addictedKey,4);
+                }
+                else {
+                    board.addItem(addictedKey,2);
+                }
+            }
+        }
 
     @Override
-    public Board getGameBoard() {
+    public Board<Key, Integer> getGameBoard() {
         return board;
     }
 
     @Override
     public boolean hasWin() {
-        if(board.hasValue(2048)){
-            return true;
+        return board.hasValue(2048);
+    }
+
+
+    private List<Integer> rotate90(List<Integer> list) {
+        var newList = new ArrayList<Integer>();
+        for (int i = 0; i < GAME_SIZE; i++) {
+            for (int j = 0; j < GAME_SIZE; j++) {
+                newList.add(list.get(j * 4 + i));
+            }
         }
-        return false;
+        return newList;
     }
 }

@@ -1,92 +1,83 @@
 package boards;
-
-
-
 import key.Key;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-public class SquareBoard<V> extends Board<Key,V> {
-    int size;
+public class SquareBoard<V> extends Board<Key,V>  {
 
     public SquareBoard(int size) {
         super(size, size);
-        this.size = size;
     }
 
     /**
-     * Filling a board with elements of a input list
-     * If it is necessary to set an empty element then set null
+     * Filling a board with elements of a input list.
+     * If it is necessary to set an empty element then set null.
      */
-
     @Override
     public void fillBoard(List<V> list) {
-        Iterator<V> iterator = list.listIterator();
-        int index = 0;
-        for (int i = 0; i < this.size; i++) {
-            for (int j = 0; j < this.size; j++) {
-                if (iterator.hasNext()) {
-                    board.put(new Key(i, j), list.get(index++));
-                } else {
-                    board.put(new Key(i, j), null); // instead might be break
+        try {
+            if (list.size() > 16) {
+                throw new RuntimeException();
+            }
+        } catch (RuntimeException e) {
+            throw new ExceptionInInitializerError();
+        }
+        Iterator<V> bufferOfValue = list.iterator();
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                if (bufferOfValue.hasNext()) {
+                    addItem(new Key(i, j), bufferOfValue.next());
                 }
             }
         }
-
     }
 
     /**
-     * Returning keys equaled null
+     * Returning keys equaled null.
      */
     @Override
     public List<Key> availableSpace() {
-        Map<Key, V> sourceBoard = board;
-        List<Key> listNulls = new ArrayList<>();
-        for (Map.Entry entry : sourceBoard.entrySet()) {
-            if (entry.getKey() == null) {
-                listNulls.add((Key) entry.getKey());
+        var listOfEmptyCells = new ArrayList<Key>();
+        if( board.isEmpty()){
+            return listOfEmptyCells;
+        }
+
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                var a = getValue(getKey(i, j));
+                if (a == null) {
+                    listOfEmptyCells.add(getKey(i, j));
+                }
             }
         }
-        return listNulls;
+        return listOfEmptyCells;
     }
 
-    public List<Key> getKeys() {
-        Map<Key, V> sourceBoard = board;
-        List<key.Key> listNulls = new ArrayList<>();
-        for (Map.Entry entry : sourceBoard.entrySet()) {
-                listNulls.add((key.Key) entry.getKey());
-
-        }
-        return listNulls;
-    }
     /**
      * Add an element {@param value} by a key {@param key}.
      */
     @Override
     public void addItem(Key key, V value) {
-        if (!board.containsKey(key)) {
-            board.put(key, value);
-        }
+        board.put(key, value);
     }
-
 
     /**
      * Seeking an existing key by coordinates  {@param i} {@param j}.
      */
-
     @Override
     public Key getKey(int i, int j) {
-        for (Map.Entry<Key,V> entry : board.entrySet()) {
-            if (entry.getKey().equals(new Key(i,j))) {
-                return (Key) entry.getKey();
-            }
+        if (board.containsKey(new Key(i, j))) {
+            return new Key(i, j);
+        } else {
+            return null;
         }
-        return null;
     }
 
+    /**
+     * Get a value by {@param key}.
+     */
     @Override
     public V getValue(Key key) {
         return board.get(key);
@@ -94,59 +85,46 @@ public class SquareBoard<V> extends Board<Key,V> {
 
     /** Get a column of keys which can be used for values choosing after */
     @Override
-    public  List<Key> getColumn(int j){
-        List<key.Key>columnsList = new ArrayList<>();
-        for(Map.Entry<Key,V> entry: board.entrySet()){
-            if(entry.getKey().getJ()==j){
-                columnsList.add(entry.getKey());
-            }
+    public List<Key> getColumn(int i) {
+        var resultList = new ArrayList<Key>();
+        for (int j = 0; j < height; j++) {
+            resultList.add(getKey(j, i));
         }
-        return columnsList;
+        return resultList;
     }
 
-    /** Get a row of keys which can be used for values choosing after
+    /**
+     * Get a row of keys which can be used for values choosing after
      */
     @Override
-    public List<Key> getRow(int i) {
-        List<key.Key>rowsList = new ArrayList<>();
-        for(Map.Entry<Key,V> entry: board.entrySet()){
-            if(entry.getKey().getI()==i){
-                rowsList.add(entry.getKey());
-            }
+    public List<Key> getRow(int j) {
+        var resultList = new ArrayList<Key>();
+        for (int i = 0; i < height; i++) {
+            resultList.add(getKey(j, i));
         }
-        return rowsList;
+        return resultList;
     }
-
-
-
 
     /**
      * Checking for availability of the value in the board*/
+
     @Override
-    public boolean hasValue(V score) {
-        if (board.containsValue(score)) {
-            return true;
-        }
-        return false;
+    public boolean hasValue(V value) {
+        return board.containsValue(value);
     }
 
-   /**
-    * Getting a row of values by the key row*/
-
+    /**
+     * Getting a row of values by the key row*/
     @Override
     public List<V> getValues(List<Key> keys) {
-        List<V>valuesRow = new ArrayList<>();
-        for(Key key : keys){
-            valuesRow.add(board.get(key));
+        var resultList = new ArrayList<V>();
+        for (Key key : keys) {
+            resultList.add(board.get(key));
         }
-        return valuesRow;
+        return resultList;
     }
-     public List<V> getRowValues(int i){
-         return getValues(getRow(i));
-     }
-    public List<V> getColumnValues(int j){
-        return getValues(getRow(j));
-    }
+
+
 
 
 }

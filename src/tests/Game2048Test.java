@@ -5,6 +5,7 @@ import basics.Game;
 import basics.Game2048;
 import boards.Board;
 import boards.SquareBoard;
+import exceptions.NotEnoughSpace;
 import key.Key;
 
 import java.util.List;
@@ -14,32 +15,30 @@ import static java.util.Arrays.asList;
 public class Game2048Test {
     private final static Game game = new Game2048();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NotEnoughSpace {
         Board<Key,String> b2 = new SquareBoard<>(1);
         b2.fillBoard(asList("hello"));
         if (!"hello".equals(b2.getValue(b2.getKey(0 ,0)))) throw new RuntimeException("board not work =(");
         if (!b2.hasValue("hello")) throw new RuntimeException("board not work =(");
-        Board<String, Double> b3 = new Board<>(1,1) {
+        Board<String, Double> b3 = new Board<String, Double>(1,1) {
             @Override public void fillBoard(List<Double> list) { }
             @Override public List<String> availableSpace() {return null;}
             @Override public void addItem(String key, Double value) {}
             @Override public Key getKey(int i, int j) {return null;}
+
             @Override
+            public Double getValue(String key) {
+                return null;
+            }
+
+
             public Double getValue(Key key) { return null; }
             @Override public List<String> getColumn(int j) {return null;}
             @Override public List<String> getRow(int i) {return null;}
             @Override public boolean hasValue(Double value) {return false;}
             @Override public List<Double> getValues(List<String> keys) {return null;}
 
-            @Override
-            public List<Double> getColumnValues(int j) {
-                return null;
-            }
 
-            @Override
-            public List<Double> getRowValues(int i) {
-                return null;
-            }
         };
         Board<Key, Integer> b = game.getGameBoard();
         if (!b.availableSpace().isEmpty()) throw new RuntimeException("Game board must be empty before initialize");
@@ -66,5 +65,3 @@ public class Game2048Test {
         if (!(l1.size() == l2.size() && l1.containsAll(l2) && l2.containsAll(l1))) throw new RuntimeException("l1: " + l1 + " not equals l2: " + l2);
     }
 }
-
-
