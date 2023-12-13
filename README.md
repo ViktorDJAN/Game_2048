@@ -1,6 +1,6 @@
 # Game 2048
 
-The primary rules of that game is as follows:
+The primary rules of that game are as follows:
  * the player must combine tiles containing the same numbers until they reach the number 2048.
  * when that score is reached you win
  * if there are not free tiles to make a step you lose .
